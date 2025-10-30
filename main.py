@@ -3,8 +3,13 @@ from inference import InferencePipeline
 import cv2
 
 def my_sink(result, video_frame):
-    if result.get("output_image"): # Display an image from the workflow response
-        cv2.imshow("Workflow Image", result["output_image"].numpy_image)
+    if result.get("output_image_1"): # Display an image from the workflow response
+        object_count = result.get("output_image_2", 0)
+        # Vẽ text hiển thị số lượng object lên ảnh
+        cv2.putText(result["output_image_1"].numpy_image, f"Objects: {object_count}", 
+                   (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 
+                   1, (0, 255, 0), 2)
+        cv2.imshow("Workflow Image", result["output_image_1"].numpy_image)
     # Kiểm tra phím 'q' để thoát
     key = cv2.waitKey(1) & 0xFF
     if key == ord('q'):
@@ -14,13 +19,12 @@ def my_sink(result, video_frame):
     # Do something with the predictions of each frame
     print(result)
 
-
 # 2. Initialize a pipeline object
 pipeline = InferencePipeline.init_with_workflow(
     api_key="B7cKlm47FSrkbNSZ7GPl",
     workspace_name="giang-znvoi",
     workflow_id="detect-count-and-visualize",
-    video_reference=0, # Path to video, device id (int, usually 0 for built in webcams), or RTSP stream url
+    video_reference="Car_On_Highway.mp4", # Path to video, device id (int, usually 0 for built in webcams), or RTSP stream url
     max_fps=30,
     on_prediction=my_sink
 )
